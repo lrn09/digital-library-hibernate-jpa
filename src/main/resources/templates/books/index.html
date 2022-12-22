@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>Index</title>
+</head>
+<body>
+
+<div style="text-align: center;"/>
+
+<form th:method="GET" th:action="@{/books}">
+    <label for="keyword"> </label>
+    Filter: <input type="text" name="keyword" id="keyword" size="50"/>
+    &nbsp;
+    <input type="submit" value="Search"/>
+    &nbsp;
+    <input type="button" value="Clear" id="btnClear" onclick="clearSearch()"/>
+
+    <script type="text/javascript">
+        function clearSearch() {
+            window.location = "[[@{/books}]]";
+        }
+    </script>
+</form>
+
+<br/>
+
+<div th:if="${bookList}">
+    <div th:if="${bookList.isEmpty()}">
+        <span>No result</span>
+    </div>
+
+    <div th:each="book : ${bookList}">
+        <a th:href="@{/books/{id}(id=${book.getBookId()})}"
+           th:text="${book.getTitle() + ', ' + book.getAuthor() + ', ' + book.getYearOfPublication()}">book</a>
+
+        <div th:if="${book.getOwner() != null}">
+            <span>Owner: </span> <span th:text="${book.getOwner().getFullName()}">Owner</span>
+        </div>
+
+        <div th:if="${book.getOwner() == null}">
+            <span>Book is free to assign</span>
+        </div>
+        <br/>
+    </div>
+
+    <hr/>
+
+    <span>
+        <span th:class="${bookPage.size eq 0} ? 'disabled' : ''">
+            <a th:if="${not bookPage.first}" th:href="@{/books(page=${bookPage.number - 1},size=${bookPage.size})}">Previous </a>
+            <a th:if="${bookPage.first}" href="javascript:void(0);">Previous </a>
+        </span>
+
+        <span th:each="pageNo : ${#numbers.sequence(0, bookPage.totalPages - 1)}"
+              th:class="${bookPage.number eq pageNo}? 'active' : ''">
+            <a th:if="${bookPage.number  eq pageNo}" href="javascript:void(0);">
+                <span th:text="${pageNo + 1}"></span>
+            </a>
+            <a th:if="${not (bookPage.number  eq pageNo)}" th:href="@{/books(page=${pageNo},size=${bookPage.size})}">
+                <span th:text="${pageNo + 1}"></span>
+            </a>
+        </span>
+
+        <span th:class="${bookPage.number + 1 ge bookPage.totalPages} ? 'disabled' : ''">
+            <a th:if="${not bookPage.last}"
+               th:href="@{/books(page=${bookPage.number + 1},size=${bookPage.size})}"> Next</a>
+            <a th:if="${bookPage.last}" href="javascript:void(0);"> Next</a>
+        </span>
+
+    </span>
+
+
+</div>
+<a href="/books/new">Add new book</a>
+
+</body>
+</html>
